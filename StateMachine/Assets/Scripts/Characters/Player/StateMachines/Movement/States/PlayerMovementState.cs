@@ -8,30 +8,21 @@ public class PlayerMovementState : IState
 {
     protected PlayerMovementStateMachine _stateMachine;
 
-    protected Vector2 _input;
+    protected PlayerGroundedData _movementData;
 
     protected float _baseSpeed = 5f;
-    protected float _sprintMod = 1f;
-
-    
-    //Rotation variables for smoothing
-    protected Vector3 _currentTargetRotaton;
-    protected Vector3 _timeToRotate;
-    protected Vector3 _dampTargetRotCurrentVel;
-    protected Vector3 _dampedTargetRotPassedTime;
-
-    protected bool _shouldWalk = true;
 
     public PlayerMovementState(PlayerMovementStateMachine playerMovementStateMachine)
     {
         _stateMachine = playerMovementStateMachine;
+        _movementData = _stateMachine.player.Data.GroundedData;
 
         InitializeRotationVariables();
     }
 
     private void InitializeRotationVariables()
     {
-        _timeToRotate.y = 0.14f;
+        _stateMachine.stateReuseData.TimeToReachTargetRotation.y = _movementData.RotationData.TargetRotationReachTime.y;
     }
 
     public virtual void EnterState()
@@ -62,12 +53,12 @@ public class PlayerMovementState : IState
 
     private void ReadMovementInput()
     {
-        _input = _stateMachine.player.inputs.playerActions.Move.ReadValue<Vector2>();
+        _stateMachine.stateReuseData.MovementInput = _stateMachine.player.Inputs.PlayerActions.Move.ReadValue<Vector2>();
     }
 
     private void Move()
     {
-        if (_input == Vector2.zero || _sprintMod == 0)
+        if (_stateMachine.stateReuseData.MovementInput == Vector2.zero || _stateMachine.stateReuseData.MovementSpeedMod == 0)
             return;
 
         Vector3 moveDir = GetMoveDirection();
@@ -94,21 +85,21 @@ public class PlayerMovementState : IState
 
     private void UpdateRotationVariables(float targetAngle)
     {
-        _currentTargetRotaton.y= targetAngle;
+        _stateMachine.stateReuseData.CurrentTargetRotation.y= targetAngle;
 
-        _dampedTargetRotPassedTime.y = 0;
+        _stateMachine.stateReuseData.DampedTargetRotationPassTime.y = 0;
     }
 
     #region ReusableMethods
 
     protected virtual void AddInputCallBacks()
     {
-        _stateMachine.player.inputs.playerActions.SprintToggle.started += OnSprintToggle;
+        _stateMachine.player.Inputs.PlayerActions.SprintToggle.started += OnSprintToggle;
     }
 
     protected virtual void RemoveInputCallBacks()
     {
-        _stateMachine.player.inputs.playerActions.SprintToggle.started -= OnSprintToggle;
+        _stateMachine.player.Inputs.PlayerActions.SprintToggle.started -= OnSprintToggle;
 
     }
 
@@ -126,7 +117,7 @@ public class PlayerMovementState : IState
             dirAngle = AddCameraRotationToAngle(dirAngle);
         }
 
-        if (dirAngle != _currentTargetRotaton.y)
+        if (dirAngle != _stateMachine.stateReuseData.CurrentTargetRotation.y)
         {
             UpdateRotationVariables(dirAngle);
         }
@@ -138,14 +129,16 @@ public class PlayerMovementState : IState
     {
         float currentYAngle = _stateMachine.player.rb.rotation.eulerAngles.y;
 
-        if (currentYAngle  == _currentTargetRotaton.y)
+        if (currentYAngle  == _stateMachine.stateReuseData.CurrentTargetRotation.y)
         {
             return;
         }
 
-        float smothedYAngle = Mathf.SmoothDampAngle(currentYAngle, _currentTargetRotaton.y, ref _dampTargetRotCurrentVel.y, _timeToRotate.y - _dampedTargetRotPassedTime.y);
+        float smothedYAngle = Mathf.SmoothDampAngle(currentYAngle, _stateMachine.stateReuseData.CurrentTargetRotation.y, 
+            ref _stateMachine.stateReuseData.DampedTargetRotationCurrentVelocity.y, _stateMachine.stateReuseData.TimeToReachTargetRotation.y -
+            _stateMachine.stateReuseData.DampedTargetRotationPassTime.y);
 
-        _dampedTargetRotPassedTime.y += Time.deltaTime;
+        _stateMachine.stateReuseData.DampedTargetRotationPassTime.y += Time.deltaTime;
 
         Quaternion targetRotation = Quaternion.Euler(0, smothedYAngle, 0);
 
@@ -177,12 +170,12 @@ public class PlayerMovementState : IState
 
     protected Vector3 GetMoveDirection()
     {
-        return new Vector3(_input.x, 0, _input.y);
+        return new Vector3(_stateMachine.stateReuseData.MovementInput.x, 0, _stateMachine.stateReuseData.MovementInput.y);
     }
 
     protected float GetMoveSpeed()
     {
-        return _baseSpeed * _sprintMod;
+        return _movementData.BaseSpeed * _stateMachine.stateReuseData.MovementSpeedMod;
     }
 
     protected Vector3 GetPlayerHorizontalVelocity()
@@ -203,7 +196,7 @@ public class PlayerMovementState : IState
 
     protected virtual void OnSprintToggle(InputAction.CallbackContext ctx)
     {
-        _shouldWalk = !_shouldWalk;
+        _stateMachine.stateReuseData.ShouldWalk = !_stateMachine.stateReuseData.ShouldWalk;
     }
 
     #endregion

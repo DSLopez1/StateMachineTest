@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class PlayerWalkingState : PlayerMovementState
+public class PlayerWalkingState : PlayerMovingState
 {
     public PlayerWalkingState(PlayerMovementStateMachine playerMovementStateMachine) : base(playerMovementStateMachine)
     {
@@ -15,7 +15,7 @@ public class PlayerWalkingState : PlayerMovementState
     {
         base.EnterState();
 
-        _sprintMod = 0.5f;
+        _stateMachine.stateReuseData.MovementSpeedMod = _movementData.WalkData.SpeedMod;
     }
 
     public override void ExitState()
@@ -36,25 +36,6 @@ public class PlayerWalkingState : PlayerMovementState
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
-    }
-
-    protected override void AddInputCallBacks()
-    {
-        base.AddInputCallBacks();
-
-        _stateMachine.player.inputs.playerActions.SprintToggle.canceled += OnMovementCanceled;
-    }
-
-    protected override void RemoveInputCallBacks()
-    {
-        base.RemoveInputCallBacks();
-
-        _stateMachine.player.inputs.playerActions.SprintToggle.canceled -= OnMovementCanceled;
-    }
-
-    protected void OnMovementCanceled(InputAction.CallbackContext ctx)
-    {
-        _stateMachine.ChangeState(_stateMachine.idleState);
     }
 
     protected override void OnSprintToggle(InputAction.CallbackContext ctx)

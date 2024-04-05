@@ -1,20 +1,24 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInput))]
 
 public class Player : MonoBehaviour
 {
+
+    [field: Header("---References---")]
+    [field: SerializeField] public playerSO Data { get; private set; }
     public Rigidbody rb { get; private set; }
 
     public Transform playerCamera { get; private set; }
 
     private PlayerMovementStateMachine _movementStateMachine;
 
-    public PlayerInput inputs { get; private set; }
+    public PlayerInput Inputs { get; private set; }
 
     private void Awake()
     {
-        inputs = GetComponent<PlayerInput>();
+        Inputs = GetComponent<PlayerInput>();
         rb = GetComponent<Rigidbody>();
 
         playerCamera = Camera.main.transform;

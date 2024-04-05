@@ -3,24 +3,24 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-    public PlayerControls inputs { get; private set; }
+    public PlayerControls Inputs { get; private set; }
 
-    public PlayerControls.PlayerActionsActions playerActions { get; private set; }
+    public PlayerControls.PlayerActionsActions PlayerActions { get; private set; }
 
     private void Awake()
     {
-        inputs = new PlayerControls();
+        Inputs = new PlayerControls();
 
-        playerActions = inputs.PlayerActions;
+        PlayerActions = Inputs.PlayerActions;
     }
 
     private void OnEnable ()
     {
-        inputs.Enable();
+        Inputs.Enable();
     }
 
     private void OnDisable()
     {
-        inputs.Disable();
+        Inputs.Disable();
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerIdleState : PlayerMovementState
+public class PlayerIdleState : PlayerGroundedState
 {
     public PlayerIdleState(PlayerMovementStateMachine playerMovementStateMachine) : base(playerMovementStateMachine)
     {
@@ -12,7 +12,7 @@ public class PlayerIdleState : PlayerMovementState
     {
         base.EnterState();
 
-        _sprintMod = 0;
+        _stateMachine.stateReuseData.MovementSpeedMod = 0;
         ResetVelocity();
     }
 
@@ -30,18 +30,10 @@ public class PlayerIdleState : PlayerMovementState
     {
         base.Update();
 
-        if (_input == Vector2.zero)
+        if (_stateMachine.stateReuseData.MovementInput == Vector2.zero)
             return;
 
         OnMove();
-    }
-
-    private void OnMove()
-    {
-        if (_shouldWalk)
-            _stateMachine.ChangeState(_stateMachine.walkingState);
-        else
-            _stateMachine.ChangeState(_stateMachine.sprintState);
     }
 
     public override void PhysicsUpdate()

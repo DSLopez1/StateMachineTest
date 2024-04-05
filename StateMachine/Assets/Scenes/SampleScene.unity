@@ -1255,11 +1255,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82fb5ab7e9f23c34f96a7fae5f66bdc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultDistance: 6
-  maxDist: 6
-  minDist: 1
-  smoothing: 4
-  zoomSens: 1
+  _defaultDistance: 6
+  _maxDist: 6
+  _minDist: 1
+  _smoothing: 4
+  _zoomSens: 1
 --- !u!1 &1015426718
 GameObject:
   m_ObjectHideFlags: 0
@@ -5023,7 +5023,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2845966645187841070}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8506441fdb18f30419d694fd4618a5a2, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -5078,6 +5078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec8805d0cac4404dbc8816b6b78a33e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <Data>k__BackingField: {fileID: 11400000, guid: 361e78be5664f6a4d8af0892a29bd6f7, type: 2}
 --- !u!114 &2845966645197373014
 MonoBehaviour:
   m_ObjectHideFlags: 0

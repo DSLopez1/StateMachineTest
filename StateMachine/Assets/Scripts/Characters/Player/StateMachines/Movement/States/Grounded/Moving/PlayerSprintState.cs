@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerSprintState : PlayerMovementState
+public class PlayerSprintState : PlayerMovingState
 {
     public PlayerSprintState(PlayerMovementStateMachine playerMovementStateMachine) : base(playerMovementStateMachine)
     {
@@ -13,7 +14,7 @@ public class PlayerSprintState : PlayerMovementState
     {
         base.EnterState();
 
-        _sprintMod = 1f;
+        _stateMachine.stateReuseData.MovementSpeedMod = _movementData.RunData.SpeedMod;
     }
 
     public override void ExitState()
@@ -30,31 +31,13 @@ public class PlayerSprintState : PlayerMovementState
     {
         base.Update();
 
-        if (_input == Vector2.zero)
+        if (_stateMachine.stateReuseData.MovementInput == Vector2.zero)
             _stateMachine.ChangeState(_stateMachine.idleState);
     }
 
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
-    }
-    protected override void AddInputCallBacks()
-    {
-        base.AddInputCallBacks();
-
-        _stateMachine.player.inputs.playerActions.SprintToggle.canceled += OnMovementCanceled;
-    }
-
-    protected override void RemoveInputCallBacks()
-    {
-        base.RemoveInputCallBacks();
-
-        _stateMachine.player.inputs.playerActions.SprintToggle.canceled -= OnMovementCanceled;
-    }
-
-    protected void OnMovementCanceled(InputAction.CallbackContext ctx)
-    {
-        _stateMachine.ChangeState(_stateMachine.idleState);
     }
 
     protected override void OnSprintToggle(InputAction.CallbackContext ctx)
