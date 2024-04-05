@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -9,15 +10,17 @@ public class PlayerMovementState : IState
 
     protected Vector2 _input;
 
-    protected float baseSpeed = 5f;
-    protected float sprintMod = 1f;
+    protected float _baseSpeed = 5f;
+    protected float _sprintMod = 1f;
 
     
     //Rotation variables for smoothing
-    protected Vector3 currentTargetRotaton;
-    protected Vector3 timeToRotate;
-    protected Vector3 dampTargetRotCurrentVel;
-    protected Vector3 dampedTargetRotPassedTime;
+    protected Vector3 _currentTargetRotaton;
+    protected Vector3 _timeToRotate;
+    protected Vector3 _dampTargetRotCurrentVel;
+    protected Vector3 _dampedTargetRotPassedTime;
+
+    protected bool _shouldWalk = true;
 
     public PlayerMovementState(PlayerMovementStateMachine playerMovementStateMachine)
     {
@@ -28,16 +31,19 @@ public class PlayerMovementState : IState
 
     private void InitializeRotationVariables()
     {
-        timeToRotate.y = 0.14f;
+        _timeToRotate.y = 0.14f;
     }
 
     public virtual void EnterState()
     {
         Debug.Log("State" + GetType().Name);
+
+        AddInputCallBacks();
     }
 
     public virtual void ExitState()
     {
+        RemoveInputCallBacks();
     }
 
     public virtual void HandleInput()
@@ -61,14 +67,14 @@ public class PlayerMovementState : IState
 
     private void Move()
     {
-        if (_input == Vector2.zero || sprintMod == 0)
+        if (_input == Vector2.zero || _sprintMod == 0)
             return;
 
         Vector3 moveDir = GetMoveDirection();
 
         float targetRotationY = Rotate(moveDir);
 
-        Vector3 targetRotDir = GettargetRotationDirection(targetRotationY);
+        Vector3 targetRotDir = GetTargetRotationDirection(targetRotationY);
 
         float moveSpeed = GetMoveSpeed();
 
@@ -88,14 +94,25 @@ public class PlayerMovementState : IState
 
     private void UpdateRotationVariables(float targetAngle)
     {
-        currentTargetRotaton.y= targetAngle;
+        _currentTargetRotaton.y= targetAngle;
 
-        dampedTargetRotPassedTime.y = 0;
+        _dampedTargetRotPassedTime.y = 0;
     }
 
     #region ReusableMethods
 
-    protected Vector3 GettargetRotationDirection(float targetAngle)
+    protected virtual void AddInputCallBacks()
+    {
+        _stateMachine.player.inputs.playerActions.SprintToggle.started += OnSprintToggle;
+    }
+
+    protected virtual void RemoveInputCallBacks()
+    {
+        _stateMachine.player.inputs.playerActions.SprintToggle.started -= OnSprintToggle;
+
+    }
+
+    protected Vector3 GetTargetRotationDirection(float targetAngle)
     {
         return Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
     }
@@ -109,7 +126,7 @@ public class PlayerMovementState : IState
             dirAngle = AddCameraRotationToAngle(dirAngle);
         }
 
-        if (dirAngle != currentTargetRotaton.y)
+        if (dirAngle != _currentTargetRotaton.y)
         {
             UpdateRotationVariables(dirAngle);
         }
@@ -121,14 +138,14 @@ public class PlayerMovementState : IState
     {
         float currentYAngle = _stateMachine.player.rb.rotation.eulerAngles.y;
 
-        if (currentYAngle  == currentTargetRotaton.y)
+        if (currentYAngle  == _currentTargetRotaton.y)
         {
             return;
         }
 
-        float smothedYAngle = Mathf.SmoothDampAngle(currentYAngle, currentTargetRotaton.y, ref dampTargetRotCurrentVel.y, timeToRotate.y - dampedTargetRotPassedTime.y);
+        float smothedYAngle = Mathf.SmoothDampAngle(currentYAngle, _currentTargetRotaton.y, ref _dampTargetRotCurrentVel.y, _timeToRotate.y - _dampedTargetRotPassedTime.y);
 
-        dampedTargetRotPassedTime.y += Time.deltaTime;
+        _dampedTargetRotPassedTime.y += Time.deltaTime;
 
         Quaternion targetRotation = Quaternion.Euler(0, smothedYAngle, 0);
 
@@ -165,7 +182,7 @@ public class PlayerMovementState : IState
 
     protected float GetMoveSpeed()
     {
-        return baseSpeed * sprintMod;
+        return _baseSpeed * _sprintMod;
     }
 
     protected Vector3 GetPlayerHorizontalVelocity()
@@ -182,4 +199,12 @@ public class PlayerMovementState : IState
 
     #endregion
 
+    #region InputCallbacks
+
+    protected virtual void OnSprintToggle(InputAction.CallbackContext ctx)
+    {
+        _shouldWalk = !_shouldWalk;
+    }
+
+    #endregion
 }

@@ -12,7 +12,7 @@ public class PlayerIdleState : PlayerMovementState
     {
         base.EnterState();
 
-        sprintMod = 0;
+        _sprintMod = 0;
         ResetVelocity();
     }
 
@@ -29,6 +29,19 @@ public class PlayerIdleState : PlayerMovementState
     public override void Update()
     {
         base.Update();
+
+        if (_input == Vector2.zero)
+            return;
+
+        OnMove();
+    }
+
+    private void OnMove()
+    {
+        if (_shouldWalk)
+            _stateMachine.ChangeState(_stateMachine.walkingState);
+        else
+            _stateMachine.ChangeState(_stateMachine.sprintState);
     }
 
     public override void PhysicsUpdate()
