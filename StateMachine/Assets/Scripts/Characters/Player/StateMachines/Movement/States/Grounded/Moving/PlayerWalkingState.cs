@@ -38,6 +38,11 @@ public class PlayerWalkingState : PlayerMovingState
         base.PhysicsUpdate();
     }
 
+    protected override void OnMovementCanceled(InputAction.CallbackContext ctx)
+    {
+        _stateMachine.ChangeState(_stateMachine.lightStoppingState);
+    }
+
     protected override void OnSprintToggle(InputAction.CallbackContext ctx)
     {
         base.OnSprintToggle(ctx);

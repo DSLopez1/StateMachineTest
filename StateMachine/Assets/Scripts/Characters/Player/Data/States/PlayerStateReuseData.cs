@@ -8,6 +8,10 @@ public class PlayerStateReuseData
 
     public float MovementSpeedMod { get; set; }
 
+    public float MovementOnSlopeSpeedMod { get; set; } = 1;
+
+    public float movementDecelForce { get; set; } = 1;
+
     public bool ShouldWalk { get; set; }
 
     private Vector3 _currentTargetRotation;

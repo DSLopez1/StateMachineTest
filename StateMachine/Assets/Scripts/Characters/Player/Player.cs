@@ -10,6 +10,10 @@ public class Player : MonoBehaviour
     [field: SerializeField] public playerSO Data { get; private set; }
     public Rigidbody rb { get; private set; }
 
+    [field: SerializeField] public CapsuleColliderUtility ColliderUtility { get; private set; }
+
+    [field: SerializeField] public PlayerLayerData LayerData { get; private set; }
+
     public Transform playerCamera { get; private set; }
 
     private PlayerMovementStateMachine _movementStateMachine;
@@ -25,6 +29,12 @@ public class Player : MonoBehaviour
 
         _movementStateMachine = new PlayerMovementStateMachine(this);
 
+    }
+
+    private void OnValidate()
+    {
+        ColliderUtility.Inizialize(gameObject);
+        ColliderUtility.CalculateCapsuleColliderDimensions();
     }
 
     private void Start()

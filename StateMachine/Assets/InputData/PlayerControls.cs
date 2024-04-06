@@ -71,6 +71,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": ""Clamp(min=-0.1,max=0.1),Invert"",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""d2036de4-84e0-4a3a-a0d1-c6255b75d221"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PostDashSprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""3e258cbf-c3cb-44da-87e4-ef217ddae09a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold(duration=1)"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -249,6 +267,50 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Zoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3f103f8-ec8d-4fba-97b1-d78f48bf2326"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ba54bcf5-39bc-4a49-baa5-ed09c9c225a6"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1c92cdcd-f762-4cf7-859b-32b38ed5f8d7"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PostDashSprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""df65de96-f9fc-4b0b-ad92-1b3d3ee721a2"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PostDashSprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -262,6 +324,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_PlayerActions_SprintToggle = m_PlayerActions.FindAction("SprintToggle", throwIfNotFound: true);
         m_PlayerActions_Look = m_PlayerActions.FindAction("Look", throwIfNotFound: true);
         m_PlayerActions_Zoom = m_PlayerActions.FindAction("Zoom", throwIfNotFound: true);
+        m_PlayerActions_Dash = m_PlayerActions.FindAction("Dash", throwIfNotFound: true);
+        m_PlayerActions_PostDashSprint = m_PlayerActions.FindAction("PostDashSprint", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -328,6 +392,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActions_SprintToggle;
     private readonly InputAction m_PlayerActions_Look;
     private readonly InputAction m_PlayerActions_Zoom;
+    private readonly InputAction m_PlayerActions_Dash;
+    private readonly InputAction m_PlayerActions_PostDashSprint;
     public struct PlayerActionsActions
     {
         private @PlayerControls m_Wrapper;
@@ -337,6 +403,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @SprintToggle => m_Wrapper.m_PlayerActions_SprintToggle;
         public InputAction @Look => m_Wrapper.m_PlayerActions_Look;
         public InputAction @Zoom => m_Wrapper.m_PlayerActions_Zoom;
+        public InputAction @Dash => m_Wrapper.m_PlayerActions_Dash;
+        public InputAction @PostDashSprint => m_Wrapper.m_PlayerActions_PostDashSprint;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActions; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -361,6 +429,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @Dash.started += instance.OnDash;
+            @Dash.performed += instance.OnDash;
+            @Dash.canceled += instance.OnDash;
+            @PostDashSprint.started += instance.OnPostDashSprint;
+            @PostDashSprint.performed += instance.OnPostDashSprint;
+            @PostDashSprint.canceled += instance.OnPostDashSprint;
         }
 
         private void UnregisterCallbacks(IPlayerActionsActions instance)
@@ -380,6 +454,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @Dash.started -= instance.OnDash;
+            @Dash.performed -= instance.OnDash;
+            @Dash.canceled -= instance.OnDash;
+            @PostDashSprint.started -= instance.OnPostDashSprint;
+            @PostDashSprint.performed -= instance.OnPostDashSprint;
+            @PostDashSprint.canceled -= instance.OnPostDashSprint;
         }
 
         public void RemoveCallbacks(IPlayerActionsActions instance)
@@ -404,5 +484,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnSprintToggle(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
+        void OnPostDashSprint(InputAction.CallbackContext context);
     }
 }

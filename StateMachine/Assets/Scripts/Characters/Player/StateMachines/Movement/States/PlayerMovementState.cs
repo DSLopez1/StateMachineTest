@@ -51,6 +51,18 @@ public class PlayerMovementState : IState
         Move();
     }
 
+    public virtual void OnAnimationEnterEvent()
+    {
+    }
+
+    public virtual void OnAnimationExitEvent()
+    {
+    }
+
+    public virtual void OnAnimationTransitionEvent()
+    {
+    }
+    
     private void ReadMovementInput()
     {
         _stateMachine.stateReuseData.MovementInput = _stateMachine.player.Inputs.PlayerActions.Move.ReadValue<Vector2>();
@@ -175,7 +187,7 @@ public class PlayerMovementState : IState
 
     protected float GetMoveSpeed()
     {
-        return _movementData.BaseSpeed * _stateMachine.stateReuseData.MovementSpeedMod;
+        return _movementData.BaseSpeed * _stateMachine.stateReuseData.MovementSpeedMod * _stateMachine.stateReuseData.MovementOnSlopeSpeedMod;
     }
 
     protected Vector3 GetPlayerHorizontalVelocity()
@@ -185,9 +197,30 @@ public class PlayerMovementState : IState
         return playerVel;
     }
 
+    protected Vector3 GetPlayerVerticalVelocity()
+    {
+        return new Vector3(0, _stateMachine.player.rb.velocity.y, 0);
+    }
+
     protected void ResetVelocity()
     {
         _stateMachine.player.rb.velocity = Vector3.zero;
+    }
+
+    protected void DecelerateHorizontally()
+    {
+        Vector3 playerHoriVel = GetPlayerHorizontalVelocity();
+
+        _stateMachine.player.rb.AddForce(-playerHoriVel * _stateMachine.stateReuseData.movementDecelForce, ForceMode.Acceleration);
+    }
+
+    protected bool IsMovingHorizontally(float minimumMagnitude = 0.1f)
+    {
+        Vector3 playerHorizVel = GetPlayerHorizontalVelocity();
+
+        Vector2 playerHoriMovement = new Vector2(playerHorizVel.x, playerHorizVel.z);
+
+        return playerHoriMovement.magnitude > minimumMagnitude;
     }
 
     #endregion
